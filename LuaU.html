@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Luau Executor Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0A0F1C; color: white; margin: 0; }
+    .editor-wrapper { position: relative; background-color: #0d1323; border: 1px solid #1e293b; border-radius: 0.75rem; overflow: hidden; min-height: 380px; }
+    .line-numbers { position: absolute; left: 0; top: 0; bottom: 0; width: 46px; background: #080c16; border-right: 1px solid #1e293b; padding: 0.75rem 0; font-family: Consolas, Monaco, monospace; font-size: 0.8rem; line-height: 1.5; color: #4a5568; text-align: right; overflow: hidden; user-select: none; z-index: 5; pointer-events: none; }
+    .line-numbers span { display: block; padding-right: 6px; }
+    .line-numbers span.error-line { background: rgba(239,68,68,0.25); color: #ef4444; font-weight: bold; border-right: 3px solid #ef4444; }
+    .line-numbers span.warn-line { background: rgba(234,179,8,0.2); color: #eab308; border-right: 3px solid #eab308; }
+    .editor-area { position: relative; margin-left: 46px; min-height: 340px; }
+    .code-textarea { position: absolute; top:0; left:0; width:100%; height:100%; padding:0.75rem; font-family: Consolas, Monaco, monospace; font-size:0.8rem; line-height:1.5; color:transparent; background:transparent; caret-color:#fff; resize:none; outline:none; border:none; z-index:10; white-space:pre; overflow:auto; tab-size:4; }
+    .code-textarea::selection { background: rgba(37,99,235,0.35); }
+    .code-pre { position: absolute; top:0; left:0; width:100%; height:100%; margin:0!important; padding:0.75rem!important; font-family: Consolas, Monaco, monospace!important; font-size:0.8rem!important; line-height:1.5!important; background:transparent!important; pointer-events:none; z-index:1; white-space:pre!important; overflow:hidden; tab-size:4; }
+    .code-pre code { background:transparent!important; white-space:pre!important; tab-size:4; }
+    .autocomplete-dropdown { position: absolute; z-index:50; background:#1a1f2e; border:1px solid #2d3548; border-radius:0.5rem; max-height:200px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.7); display:none; min-width:200px; font-size:0.75rem; }
+    .autocomplete-dropdown .suggestion-item { padding:5px 10px; cursor:pointer; font-family: Consolas, Monaco, monospace; color:#cbd5e1; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; }
+    .autocomplete-dropdown .suggestion-item:hover, .autocomplete-dropdown .suggestion-item.active { background:#2563eb; color:#fff; }
+    .autocomplete-dropdown .suggestion-item .tag { font-size:0.6rem; background:#334155; padding:2px 6px; border-radius:10px; color:#94a3b8; text-transform:uppercase; }
+    .find-replace-panel { background:#111827; border:1px solid #1e293b; border-radius:0.75rem; padding:0.75rem; display:none; margin-bottom:0.75rem; }
+    .find-replace-panel.open { display:block; }
+    .btn-sm { padding:5px 12px; font-size:0.75rem; border-radius:6px; font-weight:600; cursor:pointer; transition:all 0.2s; border:none; white-space:nowrap; }
+    .btn-primary { background:#2563eb; color:#fff; } .btn-primary:hover { background:#1d4ed8; }
+    .btn-outline { background:transparent; border:1px solid #334155; color:#cbd5e1; } .btn-outline:hover { background:#1e293b; color:#fff; }
+    .btn-danger { background:#dc2626; color:#fff; } .btn-danger:hover { background:#b91c1c; }
+    .btn-success { background:#059669; color:#fff; } .btn-success:hover { background:#047857; }
+    input[type="text"], input[type="search"] { background:#0d1323; border:1px solid #1e293b; color:#e2e8f0; padding:6px 10px; border-radius:6px; font-size:0.8rem; outline:none; width:100%; }
+    input[type="text"]:focus, input[type="search"]:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,0.15); }
+    .badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:0.65rem; font-weight:600; }
+    .badge-error { background:#7f1d1d; color:#fca5a5; } .badge-ok { background:#064e3b; color:#6ee7b7; }
+    ::-webkit-scrollbar { width:6px; height:6px; } ::-webkit-scrollbar-track { background:#0d1323; } ::-webkit-scrollbar-thumb { background:#1e293b; border-radius:4px; }
+    .fr-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+    @media (max-width:600px) { .fr-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+  <nav class="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0A0F1C] sticky top-0 z-50">
+    <div class="flex items-center gap-2"><i class="fa-solid fa-code text-blue-500 text-lg"></i><span class="font-bold text-base">Luau Helper</span></div>
+    <div class="flex items-center gap-2">
+      <button onclick="toggleFindReplace()" class="btn-sm btn-outline"><i class="fa-solid fa-magnifying-glass"></i> <span class="hidden sm:inline">Find & Replace</span></button>
+      <button onclick="stripCommentsEnhanced()" class="btn-sm btn-success"><i class="fa-solid fa-eraser"></i> <span class="hidden sm:inline">Strip Comments</span></button>
+    </div>
+  </nav>
+
+  <main class="flex-grow container mx-auto px-3 py-4 max-w-3xl">
+    <div class="bg-[#111827] border border-slate-800 rounded-xl p-3 mb-3">
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <div class="flex items-center gap-3"><h2 class="text-xs font-bold text-slate-400">STATUS</h2><span id="syntax-status" class="badge badge-ok">SYNTAX OK</span></div>
+        <div class="flex gap-4 text-xs"><div><span class="text-slate-400">Lines:</span> <span id="line-count" class="text-blue-400 font-mono">1</span></div><div><span class="text-slate-400">Chars:</span> <span id="char-count" class="text-emerald-400 font-mono">0</span></div><div><span class="text-slate-400">Vars:</span> <span id="var-count" class="text-yellow-400 font-mono">0</span></div></div>
+      </div>
+    </div>
+
+    <div id="find-replace-panel" class="find-replace-panel">
+      <div class="fr-grid"><div><label class="text-xs text-slate-400 font-semibold block mb-1">Find</label><input type="text" id="fr-find" placeholder="Text or regex..."></div><div><label class="text-xs text-slate-400 font-semibold block mb-1">Replace</label><input type="text" id="fr-replace" placeholder="Replacement..."></div></div>
+      <div class="flex flex-wrap items-center gap-3 mt-2">
+        <label class="flex items-center gap-1 text-xs text-slate-400 cursor-pointer"><input type="checkbox" id="fr-regex" class="accent-blue-500"> Regex</label>
+        <label class="flex items-center gap-1 text-xs text-slate-400 cursor-pointer"><input type="checkbox" id="fr-case-sensitive" class="accent-blue-500"> Case sensitive</label>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-2">
+        <button onclick="findNext()" class="btn-sm btn-outline"><i class="fa-solid fa-arrow-down"></i> Find</button>
+        <button onclick="replaceOne()" class="btn-sm btn-primary">Replace</button>
+        <button onclick="replaceAll()" class="btn-sm btn-danger">Replace All</button>
+      </div>
+      <div id="fr-status" class="text-xs text-slate-400 mt-2"></div>
+    </div>
+
+    <div class="editor-wrapper mb-3">
+      <div class="line-numbers" id="line-numbers"><span>1</span></div>
+      <div class="editor-area" style="min-height:360px;">
+        <textarea id="code-textarea" class="code-textarea" spellcheck="false" placeholder="--[[
+   𝗟𝗨𝗔𝗨 𝗛𝗘𝗟𝗣𝗘𝗥 𝗪𝗕
+    Credits: RIFF
+    🌿 · ʜᴛᴍʟ
+]]"></textarea>
+        <pre class="code-pre"><code id="code-highlight" class="language-lua"></code></pre>
+        <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+      </div>
+    </div>
+
+    <div class="bg-[#111827] border border-slate-800 rounded-xl p-3 mb-3">
+      <h2 class="text-xs font-bold text-slate-400 mb-2"><i class="fa-solid fa-cubes"></i> DECLARED VARIABLES</h2>
+      <div id="var-list" class="flex flex-wrap gap-1 text-xs font-mono"></div>
+    </div>
+
+    <div id="error-list-container" class="bg-[#111827] border border-slate-800 rounded-xl p-3 mb-4 hidden">
+      <h2 class="text-xs font-bold text-red-400 mb-2"><i class="fa-solid fa-triangle-exclamation"></i> ERROR LOG</h2>
+      <div id="error-list" class="text-xs font-mono space-y-1"></div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-500"><p>Luau Executor Helper</p></footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+  <script>
+    (function() {
+      const textarea = document.getElementById('code-textarea');
+      const highlightCode = document.getElementById('code-highlight');
+      const highlightPre = highlightCode.parentElement;
+      const lineNumbers = document.getElementById('line-numbers');
+      const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+      const syntaxStatus = document.getElementById('syntax-status');
+      const errorListContainer = document.getElementById('error-list-container');
+      const errorList = document.getElementById('error-list');
+      const varList = document.getElementById('var-list');
+      const lineCountEl = document.getElementById('line-count');
+      const charCountEl = document.getElementById('char-count');
+      const varCountEl = document.getElementById('var-count');
+      const frPanel = document.getElementById('find-replace-panel');
+      const frFind = document.getElementById('fr-find');
+      const frReplace = document.getElementById('fr-replace');
+      const frRegex = document.getElementById('fr-regex');
+      const frCaseSensitive = document.getElementById('fr-case-sensitive');
+      const frStatus = document.getElementById('fr-status');
+
+      const LUA_KEYWORDS = ['and','break','do','else','elseif','end','false','for','function','goto','if','in','local','nil','not','or','repeat','return','then','true','until','while','continue','self','typeof','export','type'];
+      const LUA_BUILTINS = ['print','warn','error','assert','pcall','xpcall','select','tonumber','tostring','type','rawget','rawset','rawequal','rawlen','next','ipairs','pairs','table','string','math','bit32','coroutine','os','io','debug','utf8','collectgarbage','gcinfo','getmetatable','setmetatable','newproxy','task.wait','task.spawn','task.defer','task.delay','task.cancel','loadstring','HttpGet','HttpGetAsync','getfenv','setfenv','getgenv','getrenv','setreadonly','make_writeable','is_writeable','getrawmetatable','setrawmetatable','getnamecallmethod','setnamecallmethod','getcallingscript','getscripthash','getscripts','getloadedmodules','getinstances','getnilinstances','getsenv','getmenv','setmenv','hookfunction','hookmetamethod','newcclosure','clonefunction','iscclosure','checkcaller','getinfo','getupvalue','setupvalue','getupvalues','setupvalues','getconstants','setconstants','getproto','setproto','getstack','setstack','getthreadidentity','setthreadidentity','getidentity','setidentity','syn.protect_gui','syn.unprotect_gui','syn.write_clipboard','syn.read_clipboard','syn.queue_on_teleport','syn.request','syn.crypt','syn.websocket','syn.marketplace','rbxassetid','rbxasset','game:HttpGet','game:HttpGetAsync'];
+      const ROBLOX_SERVICES = ['game','workspace','script','owner','plugin','tick','time','DateTime','Players','ReplicatedStorage','ServerStorage','ServerScriptService','StarterGui','StarterPack','StarterPlayer','SoundService','Workspace','Lighting','MaterialService','PhysicsService','RunService','TeleportService','TextService','TweenService','UserInputService','ContextActionService','CollectionService','DataStoreService','HttpService','InsertService','MarketplaceService','MessagingService','PathfindingService','ProximityPromptService','Debris','delay','spawn','wait','settings','stats','Version','Chat','LocalizationService','LogService','MemoryStoreService','NetworkClient','PolicyService','ProcessService','RobloxReplicatedStorage','RunService','ScriptContext','SocialService','StarterPlayer','Teams','TextService','TimerService','ToolboxService','TouchInputService','TrelloService','UGCValidationService','VRService','Workspace','AvatarEditorService','BadgeService','BrowserService','CacheService','ClusterService','CommerceService','DataModel','Debuggable','DraftService','ExplorerService','GamepadService','GenericTableService','GlobalSettings','GroupService','GuiService','HapticService','HopperService','ImageUploadService','InspectService','ItemService','JointsService','KeyframeService','LanguageService','LinkingService','LoadService','LocalStorageService','LoginService','MarketplaceService','MeshService','MessagingService','MouseService','NetworkClientService','NotificationService','OmniRecommendationsService','PackageService','PageService','PathfindingService','PermissionsService','PlaceService','PlayerEmulatorService','PolicyService','PremiumService','ProcessService','PublishService','ReflectionService','RegistryService','RenderService','RobloxPluginGuiService','ScriptService','SearchService','SocialService','SoundService','StartupService','StudioService','TaskService','TelemetryService','TestService','TimerService','ToolService','TouchInputService','TranslationService','TweenService','UGCService','UserInputService','UserService','VRService','WebService','CoreGui','CorePackages','Stats','RunService','ReplicatedFirst','Lighting','Workspace','SoundService','StarterGui','StarterPack','StarterPlayer','StarterCharacter','ServerStorage','ServerScriptService','ReplicatedStorage','Chat','LocalizationService','TestService'];
+      const ROBLOX_METHODS = ['FindFirstChild','WaitForChild','FindFirstAncestor','FindFirstDescendant','Clone','Destroy','ClearAllChildren','GetChildren','GetDescendants','IsA','IsAncestorOf','IsDescendantOf','GetFullName','GetAttribute','SetAttribute','GetAttributes','RemoveAttribute','GetPropertyChangedSignal','Connect','Disconnect','Once','Wait','Fire','FireServer','FireClient','FireAllClients','Invoke','InvokeServer','InvokeClient','GetService','require','LoadAsset','GetObjects','SetPrimaryPartCFrame','MakeJoints','BreakJoints','GetMass','GetNetworkOwner','GetPartsInPart','GetTouchingParts','SetNetworkOwner','PivotTo','TranslateBy','RotateBy','ScaleBy','GetExtentsSize','GetExtentsOffset','GetBoundingBox','GetTris','GetVerts','GetFaces','GetEdges','GetAdjacentParts','GetJoints','GetMassForChild','GetMomentOfInertia','GetCenterOfMass','GetVolume','GetRadius','GetRadiusForChild','FireTouchInterest','FireTouchInterestInCheck','FireTouchInterestOutCheck','SetTouchInterestEnabled','GetTouchInterestEnabled','SetTouchInterest','GetTouchInterest','AddTouchInterest','RemoveTouchInterest','ClearTouchInterest','FindPartOnRay','FindPartOnRayWithWhitelist','FindPartOnRayWithIgnorelist','FindPartsInRegion3','FindPartsInRegion3WithWhiteList','FindPartsInRegion3WithIgnoreList','GetPartBoundsInBox','GetPartBoundsInRadius','GetTouchingParts','GetConnectedParts','GetNetworkPing','GetServerTimeNow','GetLastPing','GetLastPong','GetPing','MoveTo','Move','Jump','Sit','Stand','WalkTo','Stop','Respawn','LoadCharacter','HttpGet','HttpGetAsync','HttpPost','HttpPostAsync','HttpPut','HttpPutAsync','HttpDelete','HttpDeleteAsync','JSONEncode','JSONDecode','GenerateGUID','GetObjects','InsertService:LoadAsset','LoadLocalAsset','CreatePlaceAsync','SavePlaceAsync','PublishPlaceAsync','OpenBrowser','OpenNativeOverlay','SetClipboard','GetClipboard','PromptSendInvite','PromptInviteFriends','PromptGameInvite','PromptPurchase','PromptProductPurchase','PromptPremiumPurchase','PromptBundlePurchase','PromptGamepassPurchase','PromptPrivateServerPurchase','PromptSubscriptionPurchase','PromptRobloxPurchase','PromptNativePurchase','PromptThirdPartyPurchase'];
+      const ROBLOX_PROPERTIES = [
+        'Position','Size','Color','Name','Value','Parent','Transparency','Reflectance','Anchored','CanCollide','Massless','Material','BrickColor',
+        'CFrame','Orientation','Rotation','Velocity','RotVelocity','AssemblyLinearVelocity','AssemblyAngularVelocity',
+        'Health','MaxHealth','WalkSpeed','JumpPower','Gravity','HipHeight','MaxSlopeAngle','CameraMaxZoomDistance','CameraMinZoomDistance',
+        'FieldOfView','HeadScale','BodyDepthScale','BodyWidthScale','BodyHeightScale','HumanoidStateType','FloorMaterial','MoveDirection',
+        'Sit','PlatformStand','AutoRotate','RequiresHandle','Activated','Deactivated','Enabled','Disabled','Visible','Locked','Active',
+        'CurrentCamera','CameraScript','CameraType','CameraSubject','Focus','HeadLocked',
+        'ImageLabel','TextLabel','TextBox','Frame','ScrollingFrame','ViewportFrame','CanvasGroup','UIAspectRatioConstraint','UISizeConstraint',
+        'UITextSizeConstraint','UICorner','UIStroke','UIGradient','UIPadding','UIScale','UIListLayout','UIGridLayout','UITableLayout','UIPageLayout',
+        'ImageButton','TextButton','BackgroundColor3','BorderColor3','BorderSizePixel','Text','Font','TextSize','TextColor3','TextStrokeColor3',
+        'TextStrokeTransparency','PlaceholderText','PlaceholderColor3','ClearTextOnFocus','MultiLine','TextWrapped','TextScaled','TextTruncate',
+        'RichText','MaxVisibleGraphemes','CursorPosition','SelectionStart','SelectionEnd','Selectable','SelectionGroup','ActiveController',
+        'AnchorPoint','ZIndex','LayoutOrder','Rotation','ClipsDescendants','Visible','AutoLocalize','RootLocalizationTable','Localize',
+        'Archivable','ClassName','RobloxLocked','archivable','className',
+        'CanTouch','TouchInterest','UseCollisionGroups','CollisionGroupId','CanQuery','CanCollideWith','Mass','CenterOfMass',
+        'AngularVelocity','AngularDamping','LinearDamping','GravityFactor','Buoyancy','Density','Friction','Elasticity','FrictionWeight',
+        'ElasticityWeight','UseFriction','UseElasticity','RollFriction','RollFrictionWeight','CustomPhysicalProperties','PhysicalProperties',
+        'MaterialVariant','TerrainDetail','ColorMap','MetalnessMap','RoughnessMap','NormalMap','EmissiveMap','TextureID','TextureWrap',
+        'TextureSize','TextureOffset','TextureColor','TextureTransparency','LightEmission','Glow','ZOffset','Bloom','BloomIntensity',
+        'BloomSize','BloomThreshold','Brightness','Contrast','Saturation','TintColor','Hue','Shift','Exposure','Gamma','LightInfluence',
+        'EnvironmentDiffuseScale','EnvironmentSpecularScale','Reflection','ReflectionMode','ReflectionBlur','ReflectionSize',
+        'ReflectionIntensity','ReflectionMap','Skybox','SunRays','SunAngularSize','SunIntensity','SunColor','SunGlow','SunFlare',
+        'Atmosphere','FogColor','FogEnd','FogStart','GlobalShadows','ShadowColor','ShadowTransparency','ShadowSoftness',
+        'OutdoorAmbient','OutdoorAmbientColor','IndoorAmbient','IndoorAmbientColor','Ambient','AmbientColor','Lighting',
+        'TimeOfDay','GeographicLatitude','ClockTime','LocalTime','Date','Day','Month','Year','TimeScale',
+        'CurrentTime','ElapsedTime','ReplicateTime','TimeZone','IsRunning','IsPaused',
+        'PrimaryPart','RootPart','Camera','CurrentCamera','ViewportSize','AbsoluteSize','AbsolutePosition',
+        'AbsoluteRotation','AbsoluteSizeX','AbsoluteSizeY','AbsolutePositionX','AbsolutePositionY',
+        'Mouse','MouseHit','MouseTarget','MouseTargetFilter','MouseHitObject','MouseIcon','MouseCursor',
+        'TargetRadius','TargetFilter','Hit','Normal','Distance','Material','Position','Normal','Instance',
+        'Parent','ClassName','Name','archivable','RobloxLocked','DataCost','Tags','Attributes','Source',
+        'RequiresHandle','Handle','Grip','GripForward','GripPos','GripRight','GripUp',
+        'Distance','Angle','Magnitude','Unit','Cross','Dot','Lerp','Slerp','Normalize','Orthonormalize',
+        'X','Y','Z','R','G','B','A','U','V','W','H','M','N','O','P','Q','S','T','K','L',
+        'Rows','Columns','Determinant','Transpose','Inverse','Identity','Zero','One',
+        'Forward','Backward','Left','Right','Up','Down','Top','Bottom','Front','Back',
+        'Head','Torso','LeftArm','RightArm','LeftLeg','RightLeg','HumanoidRootPart',
+        'UpperTorso','LowerTorso','LeftFoot','RightFoot','LeftHand','RightHand',
+        'LeftLowerArm','RightLowerArm','LeftUpperArm','RightUpperArm',
+        'LeftLowerLeg','RightLowerLeg','LeftUpperLeg','RightUpperLeg',
+        'Hat','Accessory','Tool','Handle','Grip','Attachment','AlignPosition','AlignOrientation',
+        'BallSocketConstraint','HingeConstraint','PrismaticConstraint','CylindricalConstraint',
+        'SpringConstraint','RopeConstraint','RodConstraint','WeldConstraint','NoCollisionConstraint',
+        'Plane','Ray','RaycastParams','RaycastResult','WorldRoot','GetPartBoundsInBox','GetPartBoundsInRadius',
+        'FindPartsInRegion3','FindPartsInRegion3WithWhiteList','FindPartsInRegion3WithIgnoreList',
+        'FindPartOnRay','FindPartOnRayWithWhitelist','FindPartOnRayWithIgnorelist',
+        'GetTouchingParts','GetConnectedParts','GetJoints','GetMass','GetNetworkOwner',
+        'GetNetworkPing','GetServerTimeNow','GetLastPing','GetLastPong','GetPing',
+        'IsLoaded','IsStreamed','IsGrounded','IsRunning','IsFlying','IsJumping',
+        'MoveTo','Move','Jump','Sit','Stand','WalkTo','Stop','Respawn','LoadCharacter',
+        'BreakJoints','MakeJoints','ClearAllChildren','Destroy','Clone','Archive',
+        'IsA','IsAncestorOf','IsDescendantOf','GetAttribute','SetAttribute','GetAttributes',
+        'RemoveAttribute','GetPropertyChangedSignal','Connect','Disconnect','Once','Wait',
+        'Fire','FireServer','FireClient','FireAllClients','Invoke','InvokeServer','InvokeClient',
+        'GetService','require','LoadAsset','GetObjects','SetPrimaryPartCFrame',
+        'PivotTo','TranslateBy','RotateBy','ScaleBy','GetExtentsSize','GetExtentsOffset',
+        'GetBoundingBox','GetTris','GetVerts','GetFaces','GetEdges',
+        'SetNetworkOwner','GetNetworkOwner','GetPartsInPart','GetTouchingParts',
+        'TouchInterest','TouchInterests','ActiveTouchInterest','ActiveTouchInterests',
+        'FireTouchInterest','FireTouchInterestIn','FireTouchInterestOut',
+        'TouchInterestC0','TouchInterestC1','TouchInterestType'
+      ];
+      const ROBLOX_EVENTS = [
+        'Touched','TouchEnded','Changed','ChildAdded','ChildRemoved','DescendantAdded','DescendantRemoving','AncestryChanged','AttributeChanged',
+        'Destroying','Died','Damage','Healing','HealthChanged','MoveToFinished','JumpRequest','Running','Climbing','FallingDown','GettingUp',
+        'Jumping','Landed','FreeFalling','Ragdoll','Seated','Strafing','Swimming','PlatformStanding','StateChanged','Activated','Deactivated',
+        'MouseButton1Click','MouseButton2Click','MouseEnter','MouseLeave','MouseMoved','MouseWheelForward','MouseWheelBackward',
+        'InputBegan','InputChanged','InputEnded','LongPress','Tap','Pinch','Pan','Rotate','Swipe','TouchTap','TouchLongPress','TouchPan',
+        'TouchPinch','TouchRotate','TouchSwipe','Focused','FocusLost','ReturnPressed','TextChanged','SelectionChanged','CursorMoved',
+        'RemoteEvent','OnClientEvent','OnServerEvent','OnInvoke','OnClientInvoke',
+        'BindableEvent','BindableFunction','RemoteFunction',
+        'PlayerAdded','PlayerRemoving','CharacterAdded','CharacterRemoving','CharacterAppearanceLoaded',
+        'Chatted','LeaderstatsChanged','TeamChanged','Respawned','Teleported',
+        'DataReady','DataUpdate','DataError','SessionEnded',
+        'UIChanged','VisibilityChanged','AbsoluteSizeChanged','AbsolutePositionChanged',
+        'DragBegin','DragEnd','DragEnter','DragLeave','DragOver','Drop',
+        'NetworkReplicated','NetworkOwnershipChanged','SimulationStarted','SimulationEnded',
+        'InterpolationChanged','AnchoredChanged','CanCollideChanged','CollisionGroupChanged',
+        'MassChanged','CenterOfMassChanged','VelocityChanged','RotVelocityChanged',
+        'AssemblyLinearVelocityChanged','AssemblyAngularVelocityChanged',
+        'RenderStepped','Heartbeat','Stepped','PreRender','PostRender',
+        'PlayerIdled','WindowFocused','WindowFocusReleased','WindowResized',
+        'SoundEnded','SoundStarted','SoundPaused','SoundResumed','SoundLooped',
+        'AnimationPlayed','AnimationStopped','AnimationPaused','AnimationTrackEnded',
+        'PromptButtonPressed','PromptShown','PromptHidden','PromptClosed',
+        'PurchaseFinished','PurchaseError','ProductInfoReceived',
+        'InviteSent','InviteReceived','InviteAccepted','InviteDeclined',
+        'NotificationReceived','NotificationCleared',
+        'FriendshipRequestReceived','FriendshipRequestAccepted','FriendshipRequestDeclined',
+        'FriendAdded','FriendRemoved','OnlineStatusChanged','PresenceChanged',
+        'MessageSent','MessageReceived','MessageRead','TypingStarted','TypingStopped',
+        'PartyJoined','PartyLeft','PartyMemberJoined','PartyMemberLeft','PartyLeaderChanged',
+        'TeleportInitiated','TeleportFailed','TeleportCompleted',
+        'ServerStarted','ServerStopped','ServerPaused','ServerResumed',
+        'DatastoreGet','DatastoreSet','DatastoreUpdate','DatastoreRemove',
+        'MatchmakingStarted','MatchmakingCompleted','MatchmakingCancelled',
+        'GameLoaded','GameUnloaded','GamePaused','GameResumed',
+        'ConnectionAccepted','ConnectionRejected','ConnectionDropped',
+        'HttpRequestSent','HttpResponseReceived','HttpError',
+        'WebSocketOpened','WebSocketClosed','WebSocketMessage','WebSocketError',
+        'Began','Ended','Paused','Resumed','Canceled','Failed','Completed','Started',
+        'TouchInterestAdded','TouchInterestRemoved','TouchInterestChanged',
+        'ActiveTouchInterestChanged','ActiveTouchInterestsChanged',
+        'FireTouchInterest','FireTouchInterestIn','FireTouchInterestOut'
+      ];
+
+      let allSuggestions = [];
+      function buildSuggestionList() {
+        allSuggestions = [];
+        const add = (arr, tag, icon) => arr.forEach(t => allSuggestions.push({text:t, tag, icon}));
+        add(LUA_KEYWORDS, 'keyword', '🔑');
+        add(LUA_BUILTINS, 'builtin', '⚙️');
+        add(ROBLOX_SERVICES, 'service', '🔌');
+        add(ROBLOX_METHODS, 'method', '📀');
+        add(ROBLOX_PROPERTIES, 'property', '📦');
+        add(ROBLOX_EVENTS, 'event', '⚡');
+        allSuggestions.sort((a,b)=>a.text.toLowerCase().localeCompare(b.text.toLowerCase()));
+      }
+      buildSuggestionList();
+
+      let currentErrors = [];
+      let declaredVariables = [];
+      let activeSuggestionIndex = -1;
+
+      function updateHighlight() { highlightCode.textContent = textarea.value; Prism.highlightElement(highlightCode); }
+      function syncScroll() { highlightPre.scrollTop = textarea.scrollTop; highlightPre.scrollLeft = textarea.scrollLeft; lineNumbers.scrollTop = textarea.scrollTop; }
+      function updateLineNumbers() {
+        const lines = textarea.value.split('\n');
+        const total = Math.max(lines.length,1);
+        let html = '';
+        for(let i=0;i<total;i++){
+          let cls = '';
+          if(currentErrors.some(e=>e.line===i+1 && e.severity==='error')) cls='error-line';
+          else if(currentErrors.some(e=>e.line===i+1 && e.severity==='warn')) cls='warn-line';
+          html += `<span class="${cls}">${i+1}</span>`;
+        }
+        lineNumbers.innerHTML = html;
+        lineNumbers.scrollTop = textarea.scrollTop;
+        lineCountEl.textContent = total;
+      }
+      function parseDeclaredVariables(code) {
+        const vars = [];
+        const re = /local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\s*[=,\n\]\)]|$)/g;
+        let m;
+        while((m=re.exec(code))!==null) if(!LUA_KEYWORDS.includes(m[1]) && !vars.includes(m[1])) vars.push(m[1]);
+        return vars;
+      }
+      function updateVarList() {
+        declaredVariables = parseDeclaredVariables(textarea.value);
+        varCountEl.textContent = declaredVariables.length;
+        varList.innerHTML = declaredVariables.length ? declaredVariables.map(v=>`<span class="bg-slate-800 text-blue-300 px-2 py-0.5 rounded cursor-pointer hover:bg-blue-700" onclick="window._ins('${v}')">${v}</span>`).join('') : '<span class="text-slate-600 italic">No variables</span>';
+      }
+      window._ins = (t) => { textarea.setRangeText(t, textarea.selectionStart, textarea.selectionStart, 'end'); textarea.focus(); handleInput(); };
+
+      function isInsideComment(pos) {
+        const code = textarea.value;
+        if (pos < 0 || pos > code.length) return false;
+        let inLongComment = false, inShortComment = false;
+        let i = 0;
+        while (i < pos) {
+          if (inLongComment) {
+            if (code[i] === ']' && code[i+1] === ']') { inLongComment = false; i += 2; continue; }
+            i++; continue;
+          }
+          if (inShortComment) {
+            if (code[i] === '\n') { inShortComment = false; i++; continue; }
+            i++; continue;
+          }
+          if (code[i] === '-' && code[i+1] === '-') {
+            if (code[i+2] === '[' && code[i+3] === '[') { inLongComment = true; i += 4; continue; }
+            inShortComment = true; i += 2; continue;
+          }
+          i++;
+        }
+        return inLongComment || inShortComment;
+      }
+
+      function checkSyntax(code) {
+        const errors = [];
+        const lines = code.split('\n');
+        let depth=0, inLongStr=false, inLongComment=false, eqStr=0, eqCom=0;
+        for(let li=0;li<lines.length;li++){
+          let i=0;
+          while(i<lines[li].length){
+            const ch=lines[li][i];
+            if(inLongStr){
+              const close=']'+'='.repeat(eqStr)+']';
+              if(lines[li].substring(i,i+close.length)===close){ inLongStr=false; i+=close.length; continue; }
+              i++; continue;
+            }
+            if(inLongComment){
+              if(lines[li][i]===']' && lines[li][i+1]===']'){ inLongComment=false; i+=2; continue; }
+              i++; continue;
+            }
+            if(ch==='-' && lines[li][i+1]==='-'){
+              if(lines[li][i+2]==='[' && lines[li][i+3]==='['){ inLongComment=true; i+=4; continue; }
+              while(i<lines[li].length) i++;
+              continue;
+            }
+            if((ch==='"'||ch==="'") && !inLongStr && !inLongComment){
+              const q=ch; i++;
+              while(i<lines[li].length && lines[li][i]!==q){ if(lines[li][i]==='\\') i++; i++; }
+              if(i>=lines[li].length) errors.push({line:li+1, msg:'Unclosed string', severity:'error'});
+              i++; continue;
+            }
+            if(ch==='[' && (lines[li][i+1]==='['||lines[li][i+1]==='=') && !inLongStr && !inLongComment){
+              let eq=0, j=i+1;
+              while(j<lines[li].length && lines[li][j]==='='){eq++; j++;}
+              if(j<lines[li].length && lines[li][j]==='['){ inLongStr=true; eqStr=eq; i=j+1; continue; }
+            }
+            if('({['.includes(ch)) depth++;
+            if(')}]'.includes(ch)){
+              depth--;
+              if(depth<0){ errors.push({line:li+1, msg:'Unexpected closing bracket', severity:'error'}); depth=0; }
+            }
+            i++;
+          }
+        }
+        if(inLongStr) errors.push({line:lines.length, msg:'Unclosed long string', severity:'error'});
+        if(inLongComment) errors.push({line:lines.length, msg:'Unclosed long comment', severity:'warn'});
+        if(depth>0) errors.push({line:lines.length, msg:`${depth} unclosed bracket(s)`, severity:'error'});
+        return errors;
+      }
+
+      function updateErrorDisplay() {
+        currentErrors = checkSyntax(textarea.value);
+        if(currentErrors.length){
+          syntaxStatus.textContent='ERRORS'; syntaxStatus.className='badge badge-error';
+          errorListContainer.classList.remove('hidden');
+          errorList.innerHTML = currentErrors.map(e=>`<div class="${e.severity==='error'?'text-red-400':'text-yellow-400'}">L${e.line}: ${e.msg}</div>`).join('');
+        } else {
+          syntaxStatus.textContent='SYNTAX OK'; syntaxStatus.className='badge badge-ok';
+          errorListContainer.classList.add('hidden');
+        }
+        updateLineNumbers();
+      }
+
+      function getCursorCoords() {
+        const pos = textarea.selectionStart;
+        const before = textarea.value.substring(0,pos);
+        const lines = before.split('\n');
+        const lineIdx = lines.length-1;
+        const col = lines[lineIdx].length;
+        const top = (lineIdx * 19.5) + 22 - textarea.scrollTop;
+        const left = (col * 7.8) + 12 - textarea.scrollLeft + 46;
+        return {top, left};
+      }
+      function getCurrentWord() {
+        const pos = textarea.selectionStart;
+        const t = textarea.value;
+        let s=pos, e=pos;
+        while(s>0 && /[a-zA-Z0-9_.:]/.test(t[s-1])) s--;
+        while(e<t.length && /[a-zA-Z0-9_.:]/.test(t[e])) e++;
+        const w = t.substring(s,e);
+        const dot=w.lastIndexOf('.'), colon=w.lastIndexOf(':');
+        const sep = Math.max(dot,colon);
+        if(sep>=0) return {full:w, prefix:w.substring(0,sep+1), partial:w.substring(sep+1), start:s, end:e, hasSep:true};
+        return {full:w, prefix:'', partial:w, start:s, end:e, hasSep:false};
+      }
+      function showAutocomplete() {
+        if (isInsideComment(textarea.selectionStart)) { hideAutocomplete(); return; }
+        const wi = getCurrentWord();
+        const partial = wi.partial.toLowerCase();
+        if(partial.length<1 && !wi.hasSep){ hideAutocomplete(); return; }
+        let filtered;
+        if(wi.hasSep && partial.length===0){
+          filtered = [...ROBLOX_METHODS,...ROBLOX_PROPERTIES,...ROBLOX_EVENTS].map(t=>({text:t, tag:'member', icon:'📎'}));
+        } else if(partial.length>=1){
+          filtered = allSuggestions.filter(s=>s.text.toLowerCase().startsWith(partial));
+          const userVars = declaredVariables.filter(v=>v.toLowerCase().startsWith(partial) && !allSuggestions.some(s=>s.text===v));
+          userVars.forEach(v=>filtered.unshift({text:v, tag:'variable', icon:'📌'}));
+        } else filtered=[];
+        if(partial.length>=2){
+          const deep = allSuggestions.filter(s=>s.text.toLowerCase().includes(partial) && !s.text.toLowerCase().startsWith(partial));
+          filtered = [...filtered, ...deep.slice(0,8)];
+        }
+        filtered = filtered.slice(0,18);
+        if(!filtered.length){ hideAutocomplete(); return; }
+        activeSuggestionIndex=-1;
+        const coords = getCursorCoords();
+        autocompleteDropdown.style.top = coords.top+'px';
+        autocompleteDropdown.style.left = coords.left+'px';
+        autocompleteDropdown.innerHTML = filtered.map((s,i)=>`<div class="suggestion-item" data-idx="${i}"><span>${s.icon} ${s.text}</span><span class="tag">${s.tag}</span></div>`).join('');
+        autocompleteDropdown.style.display='block';
+        autocompleteDropdown.querySelectorAll('.suggestion-item').forEach(el=>{
+          el.addEventListener('click',(e)=>{ e.stopPropagation(); selectSuggestion(filtered[parseInt(el.dataset.idx)]); });
+          el.addEventListener('mousedown',e=>e.preventDefault());
+        });
+        autocompleteDropdown._data = filtered;
+      }
+      function hideAutocomplete(){ autocompleteDropdown.style.display='none'; activeSuggestionIndex=-1; }
+      function selectSuggestion(sug) {
+        const wi = getCurrentWord();
+        const ins = wi.hasSep ? wi.prefix + sug.text : sug.text;
+        textarea.setRangeText(ins, wi.start, wi.end, 'select');
+        textarea.focus();
+        hideAutocomplete();
+        handleInput();
+      }
+      function navAutocomplete(dir) {
+        const items = autocompleteDropdown.querySelectorAll('.suggestion-item');
+        if(!items.length) return;
+        if(activeSuggestionIndex>=0) items[activeSuggestionIndex].classList.remove('active');
+        activeSuggestionIndex += dir;
+        if(activeSuggestionIndex>=items.length) activeSuggestionIndex=0;
+        if(activeSuggestionIndex<0) activeSuggestionIndex=items.length-1;
+        items[activeSuggestionIndex].classList.add('active');
+        items[activeSuggestionIndex].scrollIntoView({block:'nearest'});
+      }
+
+      function handleInput() {
+        updateHighlight();
+        updateLineNumbers();
+        updateVarList();
+        updateErrorDisplay();
+        charCountEl.textContent = textarea.value.length;
+        showAutocomplete();
+      }
+
+      textarea.addEventListener('input', handleInput);
+      textarea.addEventListener('scroll', syncScroll);
+      textarea.addEventListener('click', showAutocomplete);
+      textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          const pos = textarea.selectionStart;
+          const before = textarea.value.substring(0, pos);
+          const lines = before.split('\n');
+          const currentLine = lines[lines.length-1];
+          const indent = currentLine.match(/^(\s*)/)[1];
+          e.preventDefault();
+          const newline = '\n' + indent;
+          textarea.setRangeText(newline, pos, pos, 'end');
+          handleInput();
+          textarea.scrollTop = textarea.scrollHeight;
+          return;
+        }
+        if(autocompleteDropdown.style.display==='block'){
+          if(e.key==='ArrowDown'){ e.preventDefault(); navAutocomplete(1); return; }
+          if(e.key==='ArrowUp'){ e.preventDefault(); navAutocomplete(-1); return; }
+          if(e.key==='Enter'||e.key==='Tab'){
+            if(activeSuggestionIndex>=0 && autocompleteDropdown._data){
+              e.preventDefault(); selectSuggestion(autocompleteDropdown._data[activeSuggestionIndex]); return;
+            }
+            if(e.key==='Tab' && autocompleteDropdown.querySelectorAll('.suggestion-item').length>0){
+              e.preventDefault(); selectSuggestion(autocompleteDropdown._data[0]); return;
+            }
+            hideAutocomplete();
+          }
+          if(e.key==='Escape') hideAutocomplete();
+        }
+        if(e.key==='Tab' && autocompleteDropdown.style.display==='none'){
+          e.preventDefault();
+          textarea.setRangeText('    ', textarea.selectionStart, textarea.selectionStart, 'end');
+          handleInput();
+        }
+      });
+      document.addEventListener('click', (e) => { if(!autocompleteDropdown.contains(e.target) && e.target!==textarea) hideAutocomplete(); });
+
+      function toggleFindReplace() { frPanel.classList.toggle('open'); if(frPanel.classList.contains('open')) { frFind.focus(); const sel = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd); if(sel && sel.length<200 && !sel.includes('\n')) frFind.value = sel; } }
+      function getEffectiveRange() { return { text: textarea.value, offset: 0 }; }
+      function doFind(fromIdx) {
+        const find = frFind.value; if(!find) return -1;
+        const text = textarea.value; let start = fromIdx>=0 ? fromIdx : textarea.selectionStart;
+        if(frRegex.checked){
+          try{
+            const re = new RegExp(find, frCaseSensitive.checked?'g':'gi');
+            re.lastIndex = start;
+            const m = re.exec(text);
+            if(m){ textarea.focus(); textarea.setSelectionRange(m.index, m.index+m[0].length); textarea.scrollTop = Math.max(0, (text.substring(0,m.index).split('\n').length-5)*19.5); return m.index+m[0].length; }
+          }catch{ frStatus.textContent='Invalid regex'; return -1; }
+        } else {
+          const s = frCaseSensitive.checked ? find : find.toLowerCase();
+          const cmp = frCaseSensitive.checked ? text : text.toLowerCase();
+          const idx = cmp.indexOf(s, start);
+          if(idx>=0){ textarea.focus(); textarea.setSelectionRange(idx, idx+find.length); textarea.scrollTop = Math.max(0, (text.substring(0,idx).split('\n').length-5)*19.5); return idx+find.length; }
+        }
+        return -1;
+      }
+      function findNext() { const res=doFind(-1); if(res<0) frStatus.textContent='No matches'; else frStatus.textContent='Match found'; }
+      function replaceOne() {
+        const start=textarea.selectionStart, end=textarea.selectionEnd;
+        if(start===end || !frFind.value) { findNext(); return; }
+        const selected = textarea.value.substring(start, end);
+        let matches = false;
+        if(frRegex.checked){ try{ matches = new RegExp(frFind.value, frCaseSensitive.checked?'':'i').test(selected); }catch{} }
+        else { matches = (frCaseSensitive.checked?selected:selected.toLowerCase()) === (frCaseSensitive.checked?frFind.value:frFind.value.toLowerCase()); }
+        if(matches){
+          let replacement = frReplace.value;
+          if(frRegex.checked){ try{ replacement = selected.replace(new RegExp(frFind.value, frCaseSensitive.checked?'':'i'), replacement); }catch{} }
+          textarea.setRangeText(replacement, start, end, 'end');
+          handleInput();
+          textarea.setSelectionRange(start, start+replacement.length);
+          setTimeout(() => { if (textarea.selectionStart === start && textarea.selectionEnd === start+replacement.length) textarea.setSelectionRange(start+replacement.length, start+replacement.length); }, 20);
+          frStatus.textContent = 'Replaced';
+        } else { findNext(); if(textarea.selectionStart!==textarea.selectionEnd) replaceOne(); else frStatus.textContent='Select match first'; }
+      }
+      function replaceAll() {
+        const find = frFind.value; if(!find) return;
+        let count=0, newText;
+        if(frRegex.checked){
+          try{
+            const re = new RegExp(find, 'g'+(frCaseSensitive.checked?'':'i'));
+            newText = textarea.value.replace(re, frReplace.value);
+            count = (textarea.value.match(re)||[]).length;
+          }catch{ frStatus.textContent='Invalid regex'; return; }
+        } else {
+          const s = frCaseSensitive.checked ? find : find.toLowerCase();
+          const orig = textarea.value;
+          const cmp = frCaseSensitive.checked ? orig : orig.toLowerCase();
+          let idx=0, res=''; let last=0;
+          while((idx=cmp.indexOf(s,last))>=0){ count++; res += orig.substring(last,idx) + frReplace.value; last = idx+find.length; }
+          res += orig.substring(last);
+          newText = res;
+        }
+        if(count>0){ textarea.value = newText; handleInput(); frStatus.textContent = `Replaced ${count}`; } else frStatus.textContent='No matches';
+      }
+      function stripCommentsEnhanced() {
+        let code = textarea.value; if(!code.trim()) return;
+        let out='', i=0;
+        while(i<code.length){
+          if(code[i]==='"'||code[i]==="'"){
+            let q=code[i]; out+=q; i++;
+            while(i<code.length && code[i]!==q){ if(code[i]==='\\'){out+=code[i];i++; if(i<code.length)out+=code[i];}else out+=code[i]; i++; }
+            if(i<code.length) out+=code[i]; i++; continue;
+          }
+          if(code[i]==='['&&(code[i+1]==='['||code[i+1]==='=')){
+            out+=code[i]; i++; let eq=0;
+            while(i<code.length&&code[i]==='='){out+=code[i];eq++;i++;}
+            if(i<code.length&&code[i]==='['){
+              out+=code[i]; i++;
+              const close=']'+'='.repeat(eq)+']';
+              while(i<code.length){ if(code.substring(i,i+close.length)===close){out+=close;i+=close.length;break;} out+=code[i]; i++; }
+              continue;
+            }
+            continue;
+          }
+          if(code[i]==='-'&&code[i+1]==='-'){
+            i+=2;
+            if(code[i]==='['&&code[i+1]==='['){ i+=2; while(i<code.length-1&&!(code[i]===']'&&code[i+1]===']'))i++; i+=2; continue; }
+            while(i<code.length&&code[i]!=='\n')i++; continue;
+          }
+          if(code[i]==='/'&&code[i+1]==='/'){ i+=2; while(i<code.length&&code[i]!=='\n')i++; continue; }
+          out+=code[i]; i++;
+        }
+        textarea.value = out.split('\n').filter(l=>l.trim()!=='').join('\n');
+        handleInput(); frStatus.textContent='Comments stripped';
+      }
+
+      window.toggleFindReplace = toggleFindReplace;
+      window.findNext = findNext;
+      window.replaceOne = replaceOne;
+      window.replaceAll = replaceAll;
+      window.stripCommentsEnhanced = stripCommentsEnhanced;
+
+      handleInput();
+    })();
+  </script>
+</body>
+</html/>
