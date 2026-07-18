@@ -126,9 +126,9 @@ const frStatus = document.getElementById('fr-status');
 const LUA_KEYWORDS = ['and','break','do','else','elseif','end','false','for','function','goto','if','in','local','nil','not','or','repeat','return','then','true','until','while','continue','self','typeof','export','type'];
 const LUA_BUILTINS = ['print','warn','error','assert','pcall','xpcall','select','tonumber','tostring','type','rawget','rawset','rawequal','rawlen','next','ipairs','pairs','table','string','math','bit32','coroutine','os','io','debug','utf8','collectgarbage','gcinfo','getmetatable','setmetatable','newproxy','task.wait','task.spawn','task.defer','task.delay','task.cancel','loadstring','HttpGet','HttpGetAsync','getfenv','setfenv','getgenv','getrenv','setreadonly','make_writeable','is_writeable','getrawmetatable','setrawmetatable','getnamecallmethod','setnamecallmethod','getcallingscript','getscripthash','getscripts','getloadedmodules','getinstances','getnilinstances','getsenv','getmenv','setmenv','hookfunction','hookmetamethod','newcclosure','clonefunction','iscclosure','checkcaller','getinfo','getupvalue','setupvalue','getupvalues','setupvalues','getconstants','setconstants','getproto','setproto','getstack','setstack','getthreadidentity','setthreadidentity','getidentity','setidentity','syn.protect_gui','syn.unprotect_gui','syn.write_clipboard','syn.read_clipboard','syn.queue_on_teleport','syn.request','syn.crypt','syn.websocket','syn.marketplace','rbxassetid','rbxasset'];
 const ROBLOX_SERVICES = ['game','workspace','script','owner','plugin','tick','time','DateTime','Players','ReplicatedStorage','ServerStorage','ServerScriptService','StarterGui','StarterPack','StarterPlayer','SoundService','Workspace','Lighting','MaterialService','PhysicsService','RunService','TeleportService','TextService','TweenService','UserInputService','ContextActionService','CollectionService','DataStoreService','HttpService','InsertService','MarketplaceService','MessagingService','PathfindingService','ProximityPromptService','Debris','delay','spawn','wait','settings','stats','Version','Chat','LocalizationService','LogService','MemoryStoreService','NetworkClient','PolicyService','ProcessService','RobloxReplicatedStorage','RunService','ScriptContext','SocialService','StarterPlayer','Teams','TextService','TimerService','ToolboxService','TouchInputService','TrelloService','UGCValidationService','VRService','AvatarEditorService','BadgeService','BrowserService','CacheService','ClusterService','CommerceService','DataModel','Debuggable','DraftService','ExplorerService','GamepadService','GenericTableService','GlobalSettings','GroupService','GuiService','HapticService','HopperService','ImageUploadService','InspectService','ItemService','JointsService','KeyframeService','LanguageService','LinkingService','LoadService','LocalStorageService','LoginService','MarketplaceService','MeshService','MessagingService','MouseService','NetworkClientService','NotificationService','OmniRecommendationsService','PackageService','PageService','PathfindingService','PermissionsService','PlaceService','PlayerEmulatorService','PolicyService','PremiumService','ProcessService','PublishService','ReflectionService','RegistryService','RenderService','RobloxPluginGuiService','ScriptService','SearchService','SocialService','SoundService','StartupService','StudioService','TaskService','TelemetryService','TestService','TimerService','ToolService','TouchInputService','TranslationService','TweenService','UGCService','UserInputService','UserService','VRService','WebService','CoreGui','CorePackages','Stats','RunService','ReplicatedFirst','Lighting','Workspace','SoundService','StarterGui','StarterPack','StarterPlayer','StarterCharacter','ServerStorage','ServerScriptService','ReplicatedStorage','Chat','LocalizationService','TestService'];
-const ROBLOX_METHODS = ['FindFirstChild','WaitForChild','FindFirstAncestor','FindFirstDescendant','Clone','Destroy','ClearAllChildren','GetChildren','GetDescendants','IsA','IsAncestorOf','IsDescendantOf','GetFullName','GetAttribute','SetAttribute','GetAttributes','RemoveAttribute','GetPropertyChangedSignal','Connect','Disconnect','Once','Wait','Fire','FireServer','FireClient','FireAllClients','Invoke','InvokeServer','InvokeClient','GetService','require','LoadAsset','GetObjects','SetPrimaryPartCFrame','MakeJoints','BreakJoints','GetMass','GetNetworkOwner','GetPartsInPart','GetTouchingParts','SetNetworkOwner','PivotTo','TranslateBy','RotateBy','ScaleBy','GetExtentsSize','GetExtentsOffset','GetBoundingBox','GetTris','GetVerts','GetFaces','GetEdges','GetAdjacentParts','GetJoints','GetMassForChild','GetMomentOfInertia','GetCenterOfMass','GetVolume','GetRadius','GetRadiusForChild','FireTouchInterest','FireTouchInterestInCheck','FireTouchInterestOutCheck','SetTouchInterestEnabled','GetTouchInterestEnabled','SetTouchInterest','GetTouchInterest','AddTouchInterest','RemoveTouchInterest','ClearTouchInterest','FindPartOnRay','FindPartOnRayWithWhitelist','FindPartOnRayWithIgnorelist','FindPartsInRegion3','FindPartsInRegion3WithWhiteList','FindPartsInRegion3WithIgnoreList','GetPartBoundsInBox','GetPartBoundsInRadius','GetTouchingParts','GetConnectedParts','GetNetworkPing','GetServerTimeNow','GetLastPing','GetLastPong','GetPing','MoveTo','Move','Jump','Sit','Stand','WalkTo','Stop','Respawn','LoadCharacter','HttpGet','HttpGetAsync','HttpPost','HttpPostAsync','HttpPut','HttpPutAsync','HttpDelete','HttpDeleteAsync','JSONEncode','JSONDecode','GenerateGUID','GetObjects','InsertService:LoadAsset','LoadLocalAsset','CreatePlaceAsync','SavePlaceAsync','PublishPlaceAsync','OpenBrowser','OpenNativeOverlay','SetClipboard','GetClipboard','PromptSendInvite','PromptInviteFriends','PromptGameInvite','PromptPurchase','PromptProductPurchase','PromptPremiumPurchase','PromptBundlePurchase','PromptGamepassPurchase','PromptPrivateServerPurchase','PromptSubscriptionPurchase','PromptRobloxPurchase','PromptNativePurchase','PromptThirdPartyPurchase'];
-const ROBLOX_PROPERTIES = ['Position','Size','Color','Name','Value','Parent','Transparency','Reflectance','Anchored','CanCollide','Massless','Material','BrickColor','CFrame','Orientation','Rotation','Velocity','RotVelocity','AssemblyLinearVelocity','AssemblyAngularVelocity','Health','MaxHealth','WalkSpeed','JumpPower','Gravity','HipHeight','MaxSlopeAngle','CameraMaxZoomDistance','CameraMinZoomDistance','FieldOfView','HeadScale','BodyDepthScale','BodyWidthScale','BodyHeightScale','HumanoidStateType','FloorMaterial','MoveDirection','Sit','PlatformStand','AutoRotate','RequiresHandle','Activated','Deactivated','Enabled','Disabled','Visible','Locked','Active','CurrentCamera','CameraScript','CameraType','CameraSubject','Focus','HeadLocked','ImageLabel','TextLabel','TextBox','Frame','ScrollingFrame','ViewportFrame','CanvasGroup','UIAspectRatioConstraint','UISizeConstraint','UITextSizeConstraint','UICorner','UIStroke','UIGradient','UIPadding','UIScale','UIListLayout','UIGridLayout','UITableLayout','UIPageLayout','ImageButton','TextButton','BackgroundColor3','BorderColor3','BorderSizePixel','Text','Font','TextSize','TextColor3','TextStrokeColor3','TextStrokeTransparency','PlaceholderText','PlaceholderColor3','ClearTextOnFocus','MultiLine','TextWrapped','TextScaled','TextTruncate','RichText','MaxVisibleGraphemes','CursorPosition','SelectionStart','SelectionEnd','Selectable','SelectionGroup','ActiveController','AnchorPoint','ZIndex','LayoutOrder','Rotation','ClipsDescendants','Visible','AutoLocalize','RootLocalizationTable','Localize','Archivable','ClassName','RobloxLocked','archivable','className','CanTouch','TouchInterest','UseCollisionGroups','CollisionGroupId','CanQuery','CanCollideWith','Mass','CenterOfMass','AngularVelocity','AngularDamping','LinearDamping','GravityFactor','Buoyancy','Density','Friction','Elasticity','FrictionWeight','ElasticityWeight','UseFriction','UseElasticity','RollFriction','RollFrictionWeight','CustomPhysicalProperties','PhysicalProperties','MaterialVariant','TerrainDetail','ColorMap','MetalnessMap','RoughnessMap','NormalMap','EmissiveMap','TextureID','TextureWrap','TextureSize','TextureOffset','TextureColor','TextureTransparency','LightEmission','Glow','ZOffset','Bloom','BloomIntensity','BloomSize','BloomThreshold','Brightness','Contrast','Saturation','TintColor','Hue','Shift','Exposure','Gamma','LightInfluence','EnvironmentDiffuseScale','EnvironmentSpecularScale','Reflection','ReflectionMode','ReflectionBlur','ReflectionSize','ReflectionIntensity','ReflectionMap','Skybox','SunRays','SunAngularSize','SunIntensity','SunColor','SunGlow','SunFlare','Atmosphere','FogColor','FogEnd','FogStart','GlobalShadows','ShadowColor','ShadowTransparency','ShadowSoftness','OutdoorAmbient','OutdoorAmbientColor','IndoorAmbient','IndoorAmbientColor','Ambient','AmbientColor','Lighting','TimeOfDay','GeographicLatitude','ClockTime','LocalTime','Date','Day','Month','Year','TimeScale','CurrentTime','ElapsedTime','ReplicateTime','TimeZone','IsRunning','IsPaused','PrimaryPart','RootPart','Camera','CurrentCamera','ViewportSize','AbsoluteSize','AbsolutePosition','AbsoluteRotation','AbsoluteSizeX','AbsoluteSizeY','AbsolutePositionX','AbsolutePositionY','Mouse','MouseHit','MouseTarget','MouseTargetFilter','MouseHitObject','MouseIcon','MouseCursor','TargetRadius','TargetFilter','Hit','Normal','Distance','Material','Position','Normal','Instance','Parent','ClassName','Name','archivable','RobloxLocked','DataCost','Tags','Attributes','Source','RequiresHandle','Handle','Grip','GripForward','GripPos','GripRight','GripUp','Distance','Angle','Magnitude','Unit','Cross','Dot','Lerp','Slerp','Normalize','Orthonormalize','X','Y','Z','R','G','B','A','U','V','W','H','M','N','O','P','Q','S','T','K','L','Rows','Columns','Determinant','Transpose','Inverse','Identity','Zero','One','Forward','Backward','Left','Right','Up','Down','Top','Bottom','Front','Back','Head','Torso','LeftArm','RightArm','LeftLeg','RightLeg','HumanoidRootPart','UpperTorso','LowerTorso','LeftFoot','RightFoot','LeftHand','RightHand','LeftLowerArm','RightLowerArm','LeftUpperArm','RightUpperArm','LeftLowerLeg','RightLowerLeg','LeftUpperLeg','RightUpperLeg','Hat','Accessory','Tool','Handle','Grip','Attachment','AlignPosition','AlignOrientation','BallSocketConstraint','HingeConstraint','PrismaticConstraint','CylindricalConstraint','SpringConstraint','RopeConstraint','RodConstraint','WeldConstraint','NoCollisionConstraint','Plane','Ray','RaycastParams','RaycastResult','WorldRoot','GetPartBoundsInBox','GetPartBoundsInRadius','FindPartsInRegion3','FindPartsInRegion3WithWhiteList','FindPartsInRegion3WithIgnoreList','FindPartOnRay','FindPartOnRayWithWhitelist','FindPartOnRayWithIgnorelist','GetTouchingParts','GetConnectedParts','GetJoints','GetMass','GetNetworkOwner','GetNetworkPing','GetServerTimeNow','GetLastPing','GetLastPong','GetPing','IsLoaded','IsStreamed','IsGrounded','IsRunning','IsFlying','IsJumping','MoveTo','Move','Jump','Sit','Stand','WalkTo','Stop','Respawn','LoadCharacter','BreakJoints','MakeJoints','ClearAllChildren','Destroy','Clone','Archive','IsA','IsAncestorOf','IsDescendantOf','GetAttribute','SetAttribute','GetAttributes','RemoveAttribute','GetPropertyChangedSignal','Connect','Disconnect','Once','Wait','Fire','FireServer','FireClient','FireAllClients','Invoke','InvokeServer','InvokeClient','GetService','require','LoadAsset','GetObjects','SetPrimaryPartCFrame','PivotTo','TranslateBy','RotateBy','ScaleBy','GetExtentsSize','GetExtentsOffset','GetBoundingBox','GetTris','GetVerts','GetFaces','GetEdges','SetNetworkOwner','GetNetworkOwner','GetPartsInPart','GetTouchingParts','TouchInterest','TouchInterests','ActiveTouchInterest','ActiveTouchInterests','FireTouchInterest','FireTouchInterestIn','FireTouchInterestOut','TouchInterestC0','TouchInterestC1','TouchInterestType'];
-const ROBLOX_EVENTS = ['Touched','TouchEnded','Changed','ChildAdded','ChildRemoved','DescendantAdded','DescendantRemoving','AncestryChanged','AttributeChanged','Destroying','Died','Damage','Healing','HealthChanged','MoveToFinished','JumpRequest','Running','Climbing','FallingDown','GettingUp','Jumping','Landed','FreeFalling','Ragdoll','Seated','Strafing','Swimming','PlatformStanding','StateChanged','Activated','Deactivated','MouseButton1Click','MouseButton2Click','MouseEnter','MouseLeave','MouseMoved','MouseWheelForward','MouseWheelBackward','InputBegan','InputChanged','InputEnded','LongPress','Tap','Pinch','Pan','Rotate','Swipe','TouchTap','TouchLongPress','TouchPan','TouchPinch','TouchRotate','TouchSwipe','Focused','FocusLost','ReturnPressed','TextChanged','SelectionChanged','CursorMoved','RemoteEvent','OnClientEvent','OnServerEvent','OnInvoke','OnClientInvoke','BindableEvent','BindableFunction','RemoteFunction','PlayerAdded','PlayerRemoving','CharacterAdded','CharacterRemoving','CharacterAppearanceLoaded','Chatted','LeaderstatsChanged','TeamChanged','Respawned','Teleported','DataReady','DataUpdate','DataError','SessionEnded','UIChanged','VisibilityChanged','AbsoluteSizeChanged','AbsolutePositionChanged','DragBegin','DragEnd','DragEnter','DragLeave','DragOver','Drop','NetworkReplicated','NetworkOwnershipChanged','SimulationStarted','SimulationEnded','InterpolationChanged','AnchoredChanged','CanCollideChanged','CollisionGroupChanged','MassChanged','CenterOfMassChanged','VelocityChanged','RotVelocityChanged','AssemblyLinearVelocityChanged','AssemblyAngularVelocityChanged','RenderStepped','Heartbeat','Stepped','PreRender','PostRender','PlayerIdled','WindowFocused','WindowFocusReleased','WindowResized','SoundEnded','SoundStarted','SoundPaused','SoundResumed','SoundLooped','AnimationPlayed','AnimationStopped','AnimationPaused','AnimationTrackEnded','PromptButtonPressed','PromptShown','PromptHidden','PromptClosed','PurchaseFinished','PurchaseError','ProductInfoReceived','InviteSent','InviteReceived','InviteAccepted','InviteDeclined','NotificationReceived','NotificationCleared','FriendshipRequestReceived','FriendshipRequestAccepted','FriendshipRequestDeclined','FriendAdded','FriendRemoved','OnlineStatusChanged','PresenceChanged','MessageSent','MessageReceived','MessageRead','TypingStarted','TypingStopped','PartyJoined','PartyLeft','PartyMemberJoined','PartyMemberLeft','PartyLeaderChanged','TeleportInitiated','TeleportFailed','TeleportCompleted','ServerStarted','ServerStopped','ServerPaused','ServerResumed','DatastoreGet','DatastoreSet','DatastoreUpdate','DatastoreRemove','MatchmakingStarted','MatchmakingCompleted','MatchmakingCancelled','GameLoaded','GameUnloaded','GamePaused','GameResumed','ConnectionAccepted','ConnectionRejected','ConnectionDropped','HttpRequestSent','HttpResponseReceived','HttpError','WebSocketOpened','WebSocketClosed','WebSocketMessage','WebSocketError','Began','Ended','Paused','Resumed','Canceled','Failed','Completed','Started','TouchInterestAdded','TouchInterestRemoved','TouchInterestChanged','ActiveTouchInterestChanged','ActiveTouchInterestsChanged','FireTouchInterest','FireTouchInterestIn','FireTouchInterestOut'];
+const ROBLOX_METHODS = ['FindFirstChild','WaitForChild','FindFirstAncestor','FindFirstDescendant','Clone','Destroy','ClearAllChildren','GetChildren','GetDescendants','IsA','IsAncestorOf','IsDescendantOf','GetFullName','GetAttribute','SetAttribute','GetAttributes','RemoveAttribute','GetPropertyChangedSignal','Connect','Disconnect','Once','Wait','Fire','FireServer','FireClient','FireAllClients','Invoke','InvokeServer','InvokeClient','GetService','require','LoadAsset','GetObjects','SetPrimaryPartCFrame','MakeJoints','BreakJoints','GetMass','GetNetworkOwner','GetPartsInPart','GetTouchingParts','SetNetworkOwner','PivotTo','TranslateBy','RotateBy','ScaleBy','GetExtentsSize','GetExtentsOffset','GetBoundingBox','MoveTo','Jump','Sit','Stand','WalkTo','Stop','Respawn','LoadCharacter','JSONEncode','JSONDecode','GenerateGUID','OpenBrowser','SetClipboard','GetClipboard','PromptSendInvite','PromptPurchase','PromptProductPurchase'];
+const ROBLOX_PROPERTIES = ['Position','Size','Color','Name','Value','Parent','Transparency','Reflectance','Anchored','CanCollide','Massless','Material','BrickColor','CFrame','Orientation','Rotation','Velocity','RotVelocity','AssemblyLinearVelocity','AssemblyAngularVelocity','Health','MaxHealth','WalkSpeed','JumpPower','Gravity','HipHeight','MaxSlopeAngle','CameraMaxZoomDistance','CameraMinZoomDistance','FieldOfView','HeadScale','BodyDepthScale','BodyWidthScale','BodyHeightScale','Enabled','Disabled','Visible','Locked','Active','CurrentCamera','CameraScript','CameraType','CameraSubject','Focus','HeadLocked','BackgroundColor3','BorderColor3','BorderSizePixel','Text','Font','TextSize','TextColor3','TextStrokeColor3','TextStrokeTransparency','PlaceholderText','PlaceholderColor3','ClearTextOnFocus','MultiLine','TextWrapped','TextScaled','TextTruncate','RichText','MaxVisibleGraphemes','AnchorPoint','ZIndex','LayoutOrder','ClipsDescendants','Archivable','ClassName','RobloxLocked','CanTouch','CanQuery','CanCollideWith','Mass','CenterOfMass','AngularVelocity','AngularDamping','LinearDamping','GravityFactor','Buoyancy','Density','Friction','Elasticity','FrictionWeight','ElasticityWeight','CustomPhysicalProperties','PhysicalProperties','LightEmission','Glow','ZOffset','Bloom','BloomIntensity','BloomSize','BloomThreshold','Brightness','Contrast','Saturation','TintColor','Exposure','Gamma','FogColor','FogEnd','FogStart','GlobalShadows','ShadowColor','ShadowTransparency','Ambient','TimeOfDay','GeographicLatitude','ClockTime','TimeScale','PrimaryPart','RootPart','ViewportSize','AbsoluteSize','AbsolutePosition','AbsoluteRotation','Mouse','MouseHit','MouseTarget','MouseTargetFilter','MouseIcon','MouseCursor','TargetRadius','TargetFilter','Hit','Normal','Distance','Magnitude','Unit','Cross','Dot','Lerp','Slerp','Normalize','X','Y','Z','R','G','B','A','U','V','W','H','M','N','O','P','Q','S','T','K','L','Rows','Columns','Determinant','Transpose','Inverse','Identity','Zero','One','Forward','Backward','Left','Right','Up','Down','Top','Bottom','Front','Back','Head','Torso','LeftArm','RightArm','LeftLeg','RightLeg','HumanoidRootPart','UpperTorso','LowerTorso','LeftFoot','RightFoot','LeftHand','RightHand','LeftLowerArm','RightLowerArm','LeftUpperArm','RightUpperArm','LeftLowerLeg','RightLowerLeg','LeftUpperLeg','RightUpperLeg','Handle','Grip','GripForward','GripPos','GripRight','GripUp','Source','RequiresHandle'];
+const ROBLOX_EVENTS = ['Touched','TouchEnded','Changed','ChildAdded','ChildRemoved','DescendantAdded','DescendantRemoving','AncestryChanged','AttributeChanged','Destroying','Died','Damage','Healing','HealthChanged','MoveToFinished','JumpRequest','Running','Climbing','FallingDown','GettingUp','Jumping','Landed','FreeFalling','Ragdoll','Seated','Strafing','Swimming','PlatformStanding','StateChanged','Activated','Deactivated','MouseButton1Click','MouseButton2Click','MouseEnter','MouseLeave','MouseMoved','MouseWheelForward','MouseWheelBackward','InputBegan','InputChanged','InputEnded','LongPress','Tap','Pinch','Pan','Rotate','Swipe','TouchTap','TouchLongPress','TouchPan','TouchPinch','TouchRotate','TouchSwipe','Focused','FocusLost','ReturnPressed','TextChanged','SelectionChanged','CursorMoved','OnClientEvent','OnServerEvent','OnInvoke','OnClientInvoke','PlayerAdded','PlayerRemoving','CharacterAdded','CharacterRemoving','CharacterAppearanceLoaded','Chatted','TeamChanged','Respawned','Teleported','DataReady','DataUpdate','DataError','SessionEnded','UIChanged','VisibilityChanged','AbsoluteSizeChanged','AbsolutePositionChanged','DragBegin','DragEnd','DragEnter','DragLeave','DragOver','Drop','NetworkOwnershipChanged','SimulationStarted','SimulationEnded','RenderStepped','Heartbeat','Stepped','PreRender','PostRender','PlayerIdled','WindowFocused','WindowFocusReleased','WindowResized','SoundEnded','SoundStarted','SoundPaused','SoundResumed','SoundLooped','AnimationPlayed','AnimationStopped','AnimationPaused','AnimationTrackEnded','PromptButtonPressed','PromptShown','PromptHidden','PromptClosed','PurchaseFinished','PurchaseError','ProductInfoReceived','InviteSent','InviteReceived','InviteAccepted','InviteDeclined','NotificationReceived','NotificationCleared','FriendshipRequestReceived','FriendshipRequestAccepted','FriendshipRequestDeclined','FriendAdded','FriendRemoved','OnlineStatusChanged','PresenceChanged','MessageSent','MessageReceived','MessageRead','TypingStarted','TypingStopped','TeleportInitiated','TeleportFailed','TeleportCompleted','ServerStarted','ServerStopped','ConnectionAccepted','ConnectionRejected','ConnectionDropped','HttpRequestSent','HttpResponseReceived','HttpError','WebSocketOpened','WebSocketClosed','WebSocketMessage','WebSocketError','Began','Ended','Paused','Resumed','Canceled','Failed','Completed','Started','TouchInterestAdded','TouchInterestRemoved'];
 const ROBLOX_SNIPPETS = ['game:GetService("Players")','game:GetService("TweenService")','game:GetService("RunService")','game:GetService("UserInputService")','game:GetService("ReplicatedStorage")','game:GetService("HttpService")','game:GetService("TeleportService")','game:GetService("MarketplaceService")','game:GetService("ContextActionService")','game:GetService("CoreGui")','game:GetService("Stats")','game:GetService("VirtualUser")','game:GetService("Lighting")','game:GetService("Workspace")','game:GetService("StarterGui")','game:GetService("SoundService")','game:GetService("LogService")','game:GetService("ProximityPromptService")','player:GetMouse()','game.Players.LocalPlayer'];
 
 let allSuggestions = [];
@@ -150,8 +150,15 @@ let currentErrors = [];
 let declaredVariables = [];
 let activeSuggestionIndex = -1;
 
+// Debounce timer untuk highlight & syntax check (operasi berat)
+let _hlTimer = null;
+let _synTimer = null;
+let _varTimer = null;
+
 function updateHighlight() { highlightCode.textContent = textarea.value; Prism.highlightElement(highlightCode); }
 function syncScroll() { highlightPre.scrollTop = textarea.scrollTop; highlightPre.scrollLeft = textarea.scrollLeft; lineNumbers.scrollTop = textarea.scrollTop; }
+
+// Update line numbers secara langsung (ringan) tanpa debounce
 function updateLineNumbers() {
 const lines = textarea.value.split('\n');
 const total = Math.max(lines.length,1);
@@ -166,6 +173,7 @@ lineNumbers.innerHTML = html;
 lineNumbers.scrollTop = textarea.scrollTop;
 lineCountEl.textContent = total;
 }
+
 function parseDeclaredVariables(code) {
 const vars = [];
 const re = /local\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\s*[=,\n\]\)]|$)/g;
@@ -206,7 +214,7 @@ return inLongComment || inShortComment;
 function checkSyntax(code) {
 const errors = [];
 const lines = code.split('\n');
-let depth=0, inLongStr=false, inLongComment=false, eqStr=0, eqCom=0;
+let depth=0, inLongStr=false, inLongComment=false, eqStr=0;
 for(let li=0;li<lines.length;li++){
 let i=0;
 while(i<lines[li].length){
@@ -351,13 +359,26 @@ items[activeSuggestionIndex].classList.add('active');
 items[activeSuggestionIndex].scrollIntoView({block:'nearest'});
 }
 
+// --- UTAMA: handleInput dengan debounce untuk operasi berat ---
 function handleInput() {
-updateHighlight();
-updateLineNumbers();
-updateVarList();
-updateErrorDisplay();
-charCountEl.textContent = textarea.value.length;
-showAutocomplete();
+    // Instan (ringan): line numbers + char count
+    updateLineNumbers();
+    charCountEl.textContent = textarea.value.length;
+
+    // Debounce 120ms: syntax highlighting (Prism)
+    clearTimeout(_hlTimer);
+    _hlTimer = setTimeout(updateHighlight, 120);
+
+    // Debounce 200ms: variable parsing
+    clearTimeout(_varTimer);
+    _varTimer = setTimeout(updateVarList, 200);
+
+    // Debounce 300ms: syntax checking (terberat)
+    clearTimeout(_synTimer);
+    _synTimer = setTimeout(updateErrorDisplay, 300);
+
+    // Autocomplete tetap instan
+    showAutocomplete();
 }
 
 textarea.addEventListener('input', handleInput);
@@ -399,11 +420,16 @@ const lines = before.split('\n');
 const currentLine = lines[lines.length-1];
 const indentMatch = currentLine.match(/^(\s*)/);
 const indent = indentMatch ? indentMatch[1] : '';
+// Tambah indent otomatis jika baris sebelumnya diakhiri dengan keyword pembuka
+const trimmed = currentLine.trim();
+let extraIndent = '';
+if (/^(function|if|for|while|repeat|else|elseif|do|then|local\s+function)\b/.test(trimmed) && !/\bend\b/.test(trimmed)) {
+    extraIndent = '    ';
+}
 e.preventDefault();
-const newline = '\n' + indent;
+const newline = '\n' + indent + extraIndent;
 textarea.setRangeText(newline, pos, pos, 'end');
 handleInput();
-textarea.scrollTop = textarea.scrollHeight;
 return;
 }
 if(autocompleteDropdown.style.display==='block'){
@@ -443,7 +469,6 @@ URL.revokeObjectURL(a.href);
 }
 
 function toggleFindReplace() { frPanel.classList.toggle('open'); if(frPanel.classList.contains('open')) { frFind.focus(); const sel = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd); if(sel && sel.length<200 && !sel.includes('\n')) frFind.value = sel; } }
-function getEffectiveRange() { return { text: textarea.value, offset: 0 }; }
 function doFind(fromIdx) {
 const find = frFind.value; if(!find) return -1;
 const text = textarea.value; let start = fromIdx>=0 ? fromIdx : textarea.selectionStart;
@@ -500,36 +525,132 @@ newText = res;
 }
 if(count>0){ textarea.value = newText; handleInput(); frStatus.textContent = `Replaced ${count}`; } else frStatus.textContent='No matches';
 }
+
+// --- FIX: Strip komentar tanpa menghapus baris kosong yang bukan dari komentar ---
 function stripCommentsEnhanced() {
-let code = textarea.value; if(!code.trim()) return;
-let out='', i=0;
-while(i<code.length){
-if(code[i]==='"'||code[i]==="'"){
-let q=code[i]; out+=q; i++;
-while(i<code.length && code[i]!==q){ if(code[i]==='\\'){out+=code[i];i++; if(i<code.length)out+=code[i];}else out+=code[i]; i++; }
-if(i<code.length) out+=code[i]; i++; continue;
-}
-if(code[i]==='['&&(code[i+1]==='['||code[i+1]==='=')){
-out+=code[i]; i++; let eq=0;
-while(i<code.length&&code[i]==='='){out+=code[i];eq++;i++;}
-if(i<code.length&&code[i]==='['){
-out+=code[i]; i++;
-const close=']'+'='.repeat(eq)+']';
-while(i<code.length){ if(code.substring(i,i+close.length)===close){out+=close;i+=close.length;break;} out+=code[i]; i++; }
-continue;
-}
-continue;
-}
-if(code[i]==='-'&&code[i+1]==='-'){
-i+=2;
-if(code[i]==='['&&code[i+1]==='['){ i+=2; while(i<code.length-1&&!(code[i]===']'&&code[i+1]===']'))i++; i+=2; continue; }
-while(i<code.length&&code[i]!=='\n')i++; continue;
-}
-if(code[i]==='/'&&code[i+1]==='/'){ i+=2; while(i<code.length&&code[i]!=='\n')i++; continue; }
-out+=code[i]; i++;
-}
-textarea.value = out.split('\n').filter(l=>l.trim()!=='').join('\n');
-handleInput(); frStatus.textContent='Comments stripped';
+    let code = textarea.value;
+    if(!code.trim()) return;
+    // Tandai posisi awal setiap baris (apakah baris itu hanya berisi whitespace/comment)
+    const lineStarts = [];
+    let last = 0;
+    for (let i = 0; i <= code.length; i++) {
+        if (i === code.length || code[i] === '\n') {
+            lineStarts.push({ start: last, end: i, isOnlyComment: false });
+            last = i + 1;
+        }
+    }
+
+    let out = '';
+    let i = 0;
+    // Track baris mana yang isinya hanya komentar (untuk dihapus newlinenya)
+    let currentLineIdx = 0;
+
+    function getCurrentLineStart() {
+        for (let l = currentLineIdx; l < lineStarts.length; l++) {
+            if (lineStarts[l].start <= i && i < lineStarts[l].end) return l;
+        }
+        return currentLineIdx;
+    }
+
+    function markCurrentLineAsComment() {
+        let li = getCurrentLineStart();
+        lineStarts[li].isOnlyComment = true;
+    }
+
+    // Cek apakah sebelum posisi i di baris yang sama ada non-whitespace
+    function hasNonWhitespaceBefore() {
+        let li = getCurrentLineStart();
+        const lineContent = code.substring(lineStarts[li].start, i);
+        return lineContent.trim().length > 0;
+    }
+
+    while (i < code.length) {
+        // String biasa: lewati
+        if (code[i] === '"' || code[i] === "'") {
+            let q = code[i]; out += q; i++;
+            while (i < code.length && code[i] !== q) {
+                if (code[i] === '\\') { out += code[i]; i++; if (i < code.length) out += code[i]; }
+                else out += code[i];
+                i++;
+            }
+            if (i < code.length) out += code[i]; i++; continue;
+        }
+
+        // Long string: lewati
+        if (code[i] === '[' && (code[i+1] === '[' || code[i+1] === '=')) {
+            let saved = i;
+            out += code[i]; i++; let eq = 0;
+            while (i < code.length && code[i] === '=') { out += code[i]; eq++; i++; }
+            if (i < code.length && code[i] === '[') {
+                out += code[i]; i++;
+                const close = ']' + '='.repeat(eq) + ']';
+                while (i < code.length) {
+                    if (code.substring(i, i + close.length) === close) { out += close; i += close.length; break; }
+                    out += code[i]; i++;
+                }
+                continue;
+            }
+            // Bukan long string, sudah di-output sebagian, lanjut
+            continue;
+        }
+
+        // Multi-line comment --[[ ... ]]
+        if (code[i] === '-' && code[i+1] === '-' && code[i+2] === '[' && code[i+3] === '[') {
+            // Tandai baris pertama
+            if (!hasNonWhitespaceBefore()) markCurrentLineAsComment();
+            i += 4;
+            while (i < code.length - 1 && !(code[i] === ']' && code[i+1] === ']')) {
+                if (code[i] === '\n') {
+                    // Pindah ke baris berikutnya
+                    currentLineIdx = getCurrentLineStart() + 1;
+                    // Tandai baris berikutnya sebagai komentar
+                    if (currentLineIdx < lineStarts.length) {
+                        lineStarts[currentLineIdx].isOnlyComment = true;
+                    }
+                }
+                i++;
+            }
+            if (i < code.length - 1) i += 2;
+            continue;
+        }
+
+        // Single-line comment --
+        if (code[i] === '-' && code[i+1] === '-') {
+            if (!hasNonWhitespaceBefore()) markCurrentLineAsComment();
+            i += 2;
+            while (i < code.length && code[i] !== '\n') i++;
+            // Jangan skip newlinenya di sini, biar diproses normal
+            continue;
+        }
+
+        // // style comment (bukan Lua tapi kadang dipakai)
+        if (code[i] === '/' && code[i+1] === '/') {
+            if (!hasNonWhitespaceBefore()) markCurrentLineAsComment();
+            i += 2;
+            while (i < code.length && code[i] !== '\n') i++;
+            continue;
+        }
+
+        out += code[i];
+        if (code[i] === '\n') currentLineIdx++;
+        i++;
+    }
+
+    // Sekarang hapus baris-baris yang isinya hanya komentar
+    // Baris komentar = seluruh isinya dihapus termasuk newlinenya
+    let finalOut = '';
+    for (let l = 0; l < lineStarts.length; l++) {
+        if (lineStarts[l].isOnlyComment) {
+            // Lewati baris ini sepenuhnya (termasuk \n-nya)
+            continue;
+        }
+        const chunk = out.substring(lineStarts[l].start, lineStarts[l].end);
+        finalOut += chunk;
+    }
+
+    textarea.value = finalOut;
+    handleInput();
+    frStatus.textContent = 'Comments stripped';
 }
 
 window.toggleFindReplace = toggleFindReplace;
